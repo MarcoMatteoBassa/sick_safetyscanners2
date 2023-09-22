@@ -37,29 +37,51 @@ set(dependencies
 )
 
 add_library(sick_safetyscanners2_component SHARED
-  src/SickSafetyscannersRos2.cpp
-  src/utils/MessageCreator.cpp)
+  src/SickSafetyscannersRos2.cpp)
 
 ament_target_dependencies(sick_safetyscanners2_component ${dependencies})
 
-add_executable(sick_safetyscanners2_node 
+add_library(sick_safetyscanners2_message SHARED
+  src/utils/MessageCreator.cpp)
+
+ament_target_dependencies(sick_safetyscanners2_message ${dependencies})
+
+# Manually register the component
+rclcpp_components_register_nodes(sick_safetyscanners2_component "sick::SickSafetyscannersRos2")
+
+target_link_libraries(sick_safetyscanners2_component
+  sick_safetyscanners_base::sick_safetyscanners_base
+  ${Boost_LIBRARIES})
+
+target_link_libraries(sick_safetyscanners2_message
+  sick_safetyscanners_base::sick_safetyscanners_base
+  ${Boost_LIBRARIES})
+
+add_executable(sick_safetyscanners2_node
   src/sick_safetyscanners2_node.cpp)
 
-target_link_libraries(sick_safetyscanners2_node sick_safetyscanners2_component)
+target_link_libraries(sick_safetyscanners2_node sick_safetyscanners_base::sick_safetyscanners_base sick_safetyscanners2_component sick_safetyscanners2_message ${Boost_LIBRARIES})
+
+ament_target_dependencies(sick_safetyscanners2_node ${dependencies})
+
+target_include_directories(sick_safetyscanners2_node PUBLIC
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  $<INSTALL_INTERFACE:include>)
 
 target_include_directories(sick_safetyscanners2_component PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:include>)
 
-# Manually register the component
-rclcpp_components_register_nodes(sick_safetyscanners2_component "sick::SickSafetyscannersRos2")
+target_include_directories(sick_safetyscanners2_message PUBLIC
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  $<INSTALL_INTERFACE:include>)
 
-  add_executable(sick_safetyscanners2_lifecycle_node 
+add_executable(sick_safetyscanners2_lifecycle_node
   src/sick_safetyscanners2_lifecycle_node.cpp
   src/SickSafetyscannersLifeCycle.cpp
   src/utils/MessageCreator.cpp)
 
-target_link_libraries(sick_safetyscanners2_lifecycle_node 
+target_link_libraries(sick_safetyscanners2_lifecycle_node
   sick_safetyscanners_base::sick_safetyscanners_base
   ${Boost_LIBRARIES})
 
@@ -70,11 +92,19 @@ target_include_directories(sick_safetyscanners2_lifecycle_node PUBLIC
   $<INSTALL_INTERFACE:include>)
 
 install(DIRECTORY
-launch
-DESTINATION share/${PROJECT_NAME}/
+  launch
+  DESTINATION share/${PROJECT_NAME}/
 )
 
 install(TARGETS sick_safetyscanners2_node
+  EXPORT export_${PROJECT_NAME}
+  DESTINATION lib/${PROJECT_NAME})
+
+install(TARGETS sick_safetyscanners2_component
+  EXPORT export_${PROJECT_NAME}
+  DESTINATION lib/${PROJECT_NAME})
+
+install(TARGETS sick_safetyscanners2_message
   EXPORT export_${PROJECT_NAME}
   DESTINATION lib/${PROJECT_NAME})
 
@@ -86,15 +116,20 @@ if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
   # the following line skips the linter which checks for copyrights
   # uncomment the line when a copyright and license is not present in all source files
-  #set(ament_cmake_copyright_FOUND TRUE)
+  # set(ament_cmake_copyright_FOUND TRUE)
   # the following line skips cpplint (only works in a git repo)
   # uncomment the line when this package is not in a git repo
-  #set(ament_cmake_cpplint_FOUND TRUE)
+  # set(ament_cmake_cpplint_FOUND TRUE)
   ament_lint_auto_find_test_dependencies()
 endif()
-
-#TODO lookup what this does
+# TODO lookup what this does
 # For message creation,if used in this message
 ament_export_dependencies(${dependencies})
+
+install(
+  DIRECTORY include/sick_safetyscanners2/
+  DESTINATION include
+  FILES_MATCHING
+  PATTERN "*.h*")
 
 ament_package()

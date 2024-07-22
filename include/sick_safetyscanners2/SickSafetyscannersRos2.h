@@ -115,6 +115,8 @@ private:
   bool m_use_sick_angles;
   float m_angle_offset;
   bool m_use_pers_conf;
+  bool publish_output_paths_{false};
+  bool publish_raw_msg_{false};
 
   // TODO diagnostics?
   // TODO dynamic reconfigure?

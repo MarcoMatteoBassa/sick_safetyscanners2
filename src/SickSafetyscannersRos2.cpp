@@ -163,6 +163,8 @@ void SickSafetyscannersRos2::initialize_parameters()
   this->declare_parameter<bool>("application_io_data", true);
   this->declare_parameter<bool>("use_persistent_config", false);
   this->declare_parameter<float>("min_intensities", 0.f);
+  publish_output_paths_ = declare_parameter<bool>("publish_output_paths", publish_output_paths_);
+  publish_raw_msg_ = declare_parameter<bool>("publish_raw_msg", publish_raw_msg_);
 }
 
 void SickSafetyscannersRos2::load_parameters()
@@ -416,20 +418,22 @@ void SickSafetyscannersRos2::receiveUDPPaket(const sick::datastructure::Data& da
   if (!data.getMeasurementDataPtr()->isEmpty() && !data.getDerivedValuesPtr()->isEmpty() &&
       m_msg_creator)
   {
-    auto scan = m_msg_creator->createLaserScanMsg(data, this->now());
-    m_laser_scan_publisher->publish(scan);
+    auto output_scan = std::make_unique<sensor_msgs::msg::LaserScan>(
+      m_msg_creator->createLaserScanMsg(data, now()));
+    m_laser_scan_publisher->publish(std::move(output_scan));
 
-    sick_safetyscanners2_interfaces::msg::ExtendedLaserScan extended_scan =
-      m_msg_creator->createExtendedLaserScanMsg(data, this->now());
-
-    m_extended_laser_scan_publisher->publish(extended_scan);
-
-    auto output_paths = m_msg_creator->createOutputPathsMsg(data);
-    m_output_paths_publisher->publish(output_paths);
+    auto output_extended_scan = std::make_unique<sick_safetyscanners2_interfaces::msg::ExtendedLaserScan>(
+      m_msg_creator->createExtendedLaserScanMsg(data, now()));      
+    m_extended_laser_scan_publisher->publish(std::move(output_extended_scan));
+    if (publish_output_paths_) {
+      auto output_paths = m_msg_creator->createOutputPathsMsg(data);
+      m_output_paths_publisher->publish(output_paths);
+    }
   }
-
-  auto raw_msg = m_msg_creator->createRawDataMsg(data);
-  m_raw_data_publisher->publish(raw_msg);
+  if (publish_raw_msg_) {
+    auto raw_msg = m_msg_creator->createRawDataMsg(data);
+    m_raw_data_publisher->publish(raw_msg);
+  }
 }
 
 bool SickSafetyscannersRos2::getConfigMetadata(

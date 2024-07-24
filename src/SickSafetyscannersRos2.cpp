@@ -426,13 +426,15 @@ void SickSafetyscannersRos2::receiveUDPPaket(const sick::datastructure::Data& da
       m_msg_creator->createExtendedLaserScanMsg(data, now()));      
     m_extended_laser_scan_publisher->publish(std::move(output_extended_scan));
     if (publish_output_paths_) {
-      auto output_paths = m_msg_creator->createOutputPathsMsg(data);
-      m_output_paths_publisher->publish(output_paths);
+      auto output_paths = std::make_unique<sick_safetyscanners2_interfaces::msg::OutputPaths>(
+        m_msg_creator->createOutputPathsMsg(data));
+      m_output_paths_publisher->publish(std::move(output_paths));
     }
   }
   if (publish_raw_msg_) {
-    auto raw_msg = m_msg_creator->createRawDataMsg(data);
-    m_raw_data_publisher->publish(raw_msg);
+    auto raw_msg = std::make_unique<sick_safetyscanners2_interfaces::msg::RawMicroScanData>(
+      m_msg_creator->createRawDataMsg(data));
+    m_raw_data_publisher->publish(std::move(raw_msg));
   }
 }
 

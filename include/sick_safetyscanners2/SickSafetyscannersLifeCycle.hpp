@@ -134,7 +134,7 @@ private:
   float m_angle_offset;
   bool m_use_pers_conf;
   bool publish_output_paths_{false};
-  bool publish_raw_msg_{false};
+  bool publish_raw_msg_{true};
 
   // TODO diagnostics?
   // TODO dynamic reconfigure?

@@ -103,7 +103,9 @@ public:
    * \returns The constructed extended LaserScan Message
    */
   sick_safetyscanners2_interfaces::msg::ExtendedLaserScan
-  createExtendedLaserScanMsg(const sick::datastructure::Data& data, rclcpp::Time now);
+  createExtendedLaserScanMsg(const sick::datastructure::Data& data,
+                             const sensor_msgs::msg::LaserScan &scan_msg,
+                             rclcpp::Time now);
 
 
   /*!

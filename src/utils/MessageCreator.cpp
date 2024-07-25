@@ -145,11 +145,12 @@ MessageCreator::createOutputPathsMsg(const sick::datastructure::Data& data)
 }
 
 sick_safetyscanners2_interfaces::msg::ExtendedLaserScan
-MessageCreator::createExtendedLaserScanMsg(const sick::datastructure::Data& data, rclcpp::Time now)
+MessageCreator::createExtendedLaserScanMsg(const sick::datastructure::Data& data,
+                                           const sensor_msgs::msg::LaserScan &scan_msg,
+                                           rclcpp::Time now)
 {
-  sensor_msgs::msg::LaserScan scan = createLaserScanMsg(data, now);
   sick_safetyscanners2_interfaces::msg::ExtendedLaserScan msg;
-  msg.laser_scan = scan;
+  msg.laser_scan = scan_msg;
 
   std::vector<sick::datastructure::ScanPoint> scan_points =
     data.getMeasurementDataPtr()->getScanPointsVector();

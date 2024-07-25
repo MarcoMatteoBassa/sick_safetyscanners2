@@ -421,7 +421,7 @@ void SickSafetyscannersRos2::receiveUDPPaket(const sick::datastructure::Data& da
     auto output_scan = std::make_unique<sensor_msgs::msg::LaserScan>(
       m_msg_creator->createLaserScanMsg(data, now()));
     auto output_extended_scan = std::make_unique<sick_safetyscanners2_interfaces::msg::ExtendedLaserScan>(
-      m_msg_creator->createExtendedLaserScanMsg(data, *output_scan, now()));
+      m_msg_creator->createExtendedLaserScanMsg(data, *output_scan));
 
     m_laser_scan_publisher->publish(std::move(output_scan));
     m_extended_laser_scan_publisher->publish(std::move(output_extended_scan));

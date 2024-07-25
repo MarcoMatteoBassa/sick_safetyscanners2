@@ -146,8 +146,7 @@ MessageCreator::createOutputPathsMsg(const sick::datastructure::Data& data)
 
 sick_safetyscanners2_interfaces::msg::ExtendedLaserScan
 MessageCreator::createExtendedLaserScanMsg(const sick::datastructure::Data& data,
-                                           const sensor_msgs::msg::LaserScan &scan_msg,
-                                           rclcpp::Time now)
+                                           const sensor_msgs::msg::LaserScan &scan_msg)
 {
   sick_safetyscanners2_interfaces::msg::ExtendedLaserScan msg;
   msg.laser_scan = scan_msg;
